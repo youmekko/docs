@@ -16,6 +16,8 @@ Typescript, SASS 같은 고수준 프로그래밍 언어도 전용 트랜스파�
 
 vue-cli나 CRA(create react app)등을 사용할 수 없는 경우도 빈번하다. 커스터마이징 하려먼 Node.js 지식이 필요하다. 
 
+
+
 # Node.js 설치
 
 - LTS 버전과 최신 버전을 제공하는데 node를 서버로 구성하는 경우는 신중 해야겠지만 개발 환경의 경우 최신 버전을 써 보자.
@@ -23,6 +25,8 @@ vue-cli나 CRA(create react app)등을 사용할 수 없는 경우도 빈번하�
 - node를 설치하면 npm도 설치 된다.
 - `npm init` 프로젝트를 생성하는 명령어로 프로젝트의 메타 정보를 입력할 수 있다.
 - 터미널에서 npm 을 입력하면 사용 가능한 npm 커맨드들을 확인 할 수 있다. 기본적으로 제공하는 커맨드 외에 커맨드를 추가하고 싶다면  package.json에 추가하면 된다. 커스텀 커맨드를 실행할 때는 `npm run 커맨드 이름]` 을 입력하면 된다.
+
+
 
 # 외부 패키지를 관리하는 방법
 
@@ -32,15 +36,21 @@ vue-cli나 CRA(create react app)등을 사용할 수 없는 경우도 빈번하�
 
 (예) react cdn
 
-    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+```js
+<script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+```
 
 하지만 CDN 서버 장애로 인해 외부 라이브러리를 사용할 수 없다면 우리가 만드는 어플리케이션도 정상적으로 동작하지 않을 것이다.
+
+
 
 ### 2. 직접 다운로드 하는 방법
 
 CDN과 달리 독립적으로 웹 어플리케이션을 제공할 수 있다.
 
 하지만 라이브러리는 계속 업데이트 될 것이고 우리가 만드는 프로젝트에서도 최신 버전으로 매번 교체해야 한다. 이것은 매우 귀찮은 일이고 호환성 확인까지 하려면 실수 할 여지가 많다.
+
+
 
 ### 3. NPM을 이용하는 방법
 
@@ -58,7 +68,7 @@ node.js 가 패지키 버전을 관리하는 방식
 
 Node.js는 유의적 버전의 규칙을 따른다.
 
-```javascritp
+```
 //특정 버전 사용
 1.2.3
 
@@ -79,6 +89,8 @@ Node.js는 유의적 버전의 규칙을 따른다.
 
 
 npm으로 패키지를 설치하면 package.json에 설치한 버전을 기록하는데 캐럿 방식을 이용한다. 초기에는 틸트를 사용하다가 캐럿을 도입해서 기본 동작으로 사용했다. 
+
+
 
 # 웹팩이 필요한 이유와 기본 동작
 
@@ -117,11 +129,14 @@ CommonJS와 AMD를 통합해서 지원하는 것이 UMD(Universal Module Definit
 export function sum (a, b) {
 	return a + b;
 }
-
+```
+```js
 import * as math from './math.js';
 
 math.sum(1, 2); //3
 ```
+
+
 
 ### 브라우저의 모듈 지원
 
@@ -134,6 +149,8 @@ math.sum(1, 2); //3
 ```
 
 모든 브라우저에서 무관하게 모듈을 사용하고 싶다면 이제야 웹팩이 나올 차례이다.
+
+
 
 # mode/entry/output(path, filename)
 
@@ -167,7 +184,7 @@ module.exports = {
         main: './src/app.js'
     },
     output: {
-        //out diretory 명으로 절대 경로로 입력한다.
+        //output diretory 명으로 절대 경로로 입력한다.
         path: path.resolve('./dist'),
         //name은 entry의 main으로 치환된다. 이렇게 하면 output이름을 동적으로 만들어 낼 수 있는 효과가 있다.
         filename: '[name].js'
@@ -197,6 +214,8 @@ package.json
   }
 }
 ```
+
+
 
 # 로더
 
@@ -248,6 +267,8 @@ module.exports = {
 
 정리 하면 웹팩의 로더는 각 파일을 처리하기 위한 것이다. 처리 할 파일의 패턴을 명시하고 패턴에 해당 하는 파일들을 로더 함수를 이용해 처리한다.
 
+
+
 # 자주 사용하는 로더
 
 ### css-loader
@@ -277,7 +298,6 @@ module.exports = {
         path: path.resolve('./dist'),
         filename: '[name].js'
     },
-		//로더는 모듈 객체의 rules라는 배열에 추가 할 수 있다.
     module : {
         rules : [
             {
@@ -299,6 +319,8 @@ HTML이 코드가 DOM이라는 모습으로 변환 되어야 브라우저에서 
 
  CSS 코드를 모듈로 사용하고 번들을 하려면 css-loader와 style-loader를 같이 사용해야 한다.
 
+
+
 ### style-loader
 
 ~~~shell
@@ -306,7 +328,6 @@ npm instll -d style-loader
 ~~~
 
 ```js
-
 const path = require('path');
 
 module.exports = {
@@ -318,11 +339,10 @@ module.exports = {
         path: path.resolve('./dist'),
         filename: '[name].js'
     },
-		//로더는 모듈 객체의 rules라는 배열에 추가 할 수 있다.
     module : {
         rules : [
             {
-                test : /\.css$/, //로더가 처리해야 할 파일들의 패턴을 입력한다. 여기서는 모든 JS 파일.
+                test : /\.css$/,
                 use: [
                     'style-loader',
                     'css-loader'
@@ -345,6 +365,8 @@ module.exports = {
 		}</style>
 </head>
 ```
+
+
 
 ### file-loader
 
@@ -370,7 +392,6 @@ module.exports = {
         path: path.resolve('./dist'),
         filename: '[name].js'
     },
-		//로더는 모듈 객체의 rules라는 배열에 추가 할 수 있다.
     module : {
         rules : [
             {
@@ -429,6 +450,8 @@ module.exports = {
     }
 }
 ```
+
+
 
 ### url-loader
 
@@ -509,11 +532,10 @@ module.exports = {
         path: path.resolve('./dist'),
         filename: '[name].js'
     },
-		//로더는 모듈 객체의 rules라는 배열에 추가 할 수 있다.
     module : {
         rules : [
             {
-                test: /\.css$/, //로더가 처리해야 할 파일들의 패턴을 입력한다. 여기서는 모든 JS 파일.
+                test: /\.css$/,
                 use: [
                     'style-loader',
                     'css-loader'
@@ -540,6 +562,8 @@ module.exports = {
 - style-loader : css-loader에서 처리된 자바스크립트 문자열로 되어 있는 스타일시트 코드를 html에 주입시켜서 브라우저에  스타일이 적용되도록 하는 역할을 한다.
 - file-loader: 이미지 파일을 모듈로 사용할 수 있도록 변환하는 역할을 한다. 사용할 파일을 아웃풋 경로로 이동 시키는 역할을 한다.
 - url-loader : 파일을 base64로 인코딩 해서 그 결과를 자바스크립트 문자열로 변환하는 역할을 한다. 처리할 파일의 크기 제한을 둬서 일정 파일만 미만만 변환을 하고 나머지 파일을 file-loader로 위임하는 역할을 한다.
+
+
 
 # 플러그인
 
@@ -593,6 +617,8 @@ module.exports = MyPlugin;
 
 실제로 플러그인을 직접 작성할 일은 거의 없다. 웹팩에서 자주 사용하는 플러그인을 사용하거나 써드파티 라이브러리를 찾아 사용한다.
 
+
+
 # 자주 사용하는 플러그인
 
 ### BannerPlugin (웹팩기본)
@@ -619,6 +645,8 @@ module.exports = {
 ```
 
 빌드 결과 물에 배너 정보를 추가하는 이유는.. 빌드 → 배포 후 실제 정적 파일들이 잘 배포 되었는지..? 캐시에 의서 갱신되지 않았는지 확인하는 용도로 쓴다.
+
+
 
 ### DefinePlugin (웹팩기본)
 
@@ -665,13 +693,17 @@ console.log(api.domain); //http://dev.api.domain.com
 
 빌드 타임에 결정 된 값을 어플리케이션에 전달할 때는 이 플러그인을 사용 해 보자.
 
+
+
 ### HtmlWebpackPlugin (써드파티 패키지)
 
 HTML 파일을 후처리 하는데 사용한다. 웹팩으로 빌드 한 결과물을 자동으로 로딩하는 코드를  HTML에 주입해 준다.
 
-```js
+~~~shell
 npm install html-webpack-plugin
+~~~
 
+```js
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -729,14 +761,14 @@ NODE_ENV=development npm run build
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-		<!-- 이것은 주석 입니다 -->
-</head>
-<body>
-</body>
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Document</title>
+      <!-- 이것은 주석 입니다 -->
+  </head>
+  <body>
+  </body>
 </html>
 ```
 
@@ -779,6 +811,8 @@ module.exports = {
 }
 ```
 
+
+
 ### MiniCssExtractPlugin (써드파티 패키지)
 
 스타일 시트가 많아지면 하나의 자바스크립트 결과물로 만드는 것이 부담 일 수 있다. 번들 결과에서 css 코드만 따로 뽑아서 css 파일을 별도로 만들어 역할에 따라 파일을 분리하는 것이 좋다. 브라우저에서는 큰 파일 하나를 로딩하는 것보다 여러 개의 작은 파일 동시에 로딩하는 것이 빠르기 때문이다.
@@ -786,8 +820,6 @@ module.exports = {
 ~~~shell
 npm install mini-css-extract-plugin
 ~~~
-
-
 
 ```js
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -835,6 +867,8 @@ module.exports = {
 </html>
 ```
 
+
+
 ### 정리
 
 - BannerPlugin : 번들링 된 결과물 상단에 빌드 정보를 추가하는 역할
@@ -842,6 +876,8 @@ module.exports = {
 - HtmlWebpackPlugin : html을 빌드 과정에 추가 하고 동적으로 추가 되는 js와 css를 그리고 빌드 타임에 결정되는 값들을 HTML파일을 동적을 만드는데 사용한다.
 - CleanWebpackPlugin : 빌드 할 때마다 아웃풋 폴더를 삭제 해주는 역할을 한다.
 - MiniCssExtractPlugin : 번들 된 JS 코드에서  CSS만 뽑아내서 CSS파일을 만드는 플러그인이다.
+
+
 
 # 웹팩 개발 서버
 
@@ -860,6 +896,8 @@ npm i -d webpack-dev-server
     "start": "webpack-dev-server" 
 }
 ```
+
+
 
 ### 기본 설정
 
@@ -888,6 +926,8 @@ module.exports = {
 - historyApiFallBack: 히스토리 API를 사용하는 SPA 개발 시 설정한다.  404가 발생하면 index.html로 리다이렉트 한다.
 
 이 외에도 개발 서버를 실행 할 때 명령어 인자로 `--progress`  를 넣어주면 빌드 상태를 볼 수 있다.
+
+
 
 # API 서버 연동
 
@@ -1009,7 +1049,9 @@ module.exports = {
 
 프론트에서 api 요청을 하면 웹팩 서버가 프록시 설정으로 이미 셋팅 되어 있는 api서버에 요청을 보내고 그 응답을 다시 프론트로 보내준다.
 
-# 핫로딩 (핫모듈리플레이스먼트)
+
+
+# 핫로딩 (핫모듈리플레이스먼트, HMR)
 
 웹팩 서버를 셋팅하면, 파일이 변화하면 브라우저가 자동으로 갱신 되게 하는 기능이 추가 됐다. 
 
@@ -1029,6 +1071,8 @@ module.exports = {
 		...
 }
 ```
+
+
 
 HotModuleReplacement(이하 HMR)을 제대로 사용하려면 HMR 인터페이스를 맞춰줘야 한다.
 
@@ -1058,11 +1102,15 @@ if (module.hot) {
 
 vue나 react를 사용하고 있으면 알맞은 핫로딩을 사용하면 된다.
 
+
+
 # 최적화
 
 코드가 많아지면 번들링 된 결과물도 커지기 마련이다. 거의 메가바이트로 커질 수도 있는데 브라우저 성능에 영향을 줄 수도 있다. 
 
 어떻게 웹팩으로 번들 결과를 압축하고 상황에 따라 작은 파일 여러개로 분리할 수 있는지 알아보자.
+
+
 
 ### mode 설정
 
@@ -1094,15 +1142,19 @@ module.exports = {
 }
 ```
 
+
+
 ### optimazation 속성으로 최적화
 
 빌드 과정을 커스터마이징 할 수 있는 여지를 제공하는데 그것이 바로 optimazation속성이다.
 
 HtmlWebpackPlugin이 html 파일을 압축한 것처럼 css 파일도 빈칸을 없애는 압축을 하려먼 optimize-css-assets-webpack-plugin을 사용하면 된다.
 
-```js
+~~~shell
 npm i -d optimize-css-assets-webpack-plugin
+~~~
 
+```js
 const OptimizeCSSAseetsPlugin = require('optimize-css-assets-webpack-plugin')
 
 module.exports = {
@@ -1141,6 +1193,8 @@ module.exports = {
 	}
 }
 ```
+
+
 
 ### 코드 분할
 
@@ -1189,6 +1243,8 @@ module.exports = {
 
 엔트리포인트를 분리하는 것은 개발자가 직접 적절하게 분리해야 하기 때문에 손이 많이 가는 편이다. 이것을 자동으로 변경해 주는 방식이 있는데 웹팩의 Dynamic Import(동적 임포트)다.
 
+
+
 ### 다이나믹 임포트
 
 기존의 코드는 아래와 같았다. import ~ from으로 controller라는 모듈을 가져와서 사용했다.
@@ -1226,6 +1282,8 @@ getController() 라는 함수로 모듈을 가지고 왔다. import()함수로 �
 빌드 하면 자동으로 파일이 분리 되어 있다. 엔트리를 분리하지 않아도 controller와 app의 중복 코드를 vendors~controller 파일로 분리한다. 
 
 다이나믹 임포트로 모듈을 가져오면 단일 엔트리를 유지하면서 코드를 분리 할 수 있다.
+
+
 
 ### externals
 
@@ -1268,9 +1326,7 @@ module.exports = {
 
 ```js
 <!-- src/index.html -->
-  <script type="text/javascript" src="axios.min.js"></script>
-</body>
-</html>
+<script type="text/javascript" src="axios.min.js"></script>
 ```
 
 axios 는 직접 추가 했지만 번들링한 결과물은 HtmlWebpackPlugin이 주입해 주는 것을 잊지 말자.
