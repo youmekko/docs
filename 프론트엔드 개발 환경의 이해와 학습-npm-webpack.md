@@ -157,7 +157,7 @@ math.sum(1, 2); //3
 번들 작업을 하는 webpack 패키지와 웹팩을 터미널 명령으로 사용할 수 있는 webpack-cli를 설치하자.
 
 ```shell
-npm install -d webpack webpack-cli
+npm install -D webpack webpack-cli
 ```
 
 `node_module/.bin/webpack --help` 로 일단 한번 살펴보자.
@@ -276,7 +276,7 @@ module.exports = {
 css에 로더를 설정하게 되면 자바스크립트에서 css파일을 모듈로 불러 올 수 있다.
 
 ~~~shell
-npm install -d css-loader
+npm install -D css-loader
 ~~~
 
 ```js
@@ -324,7 +324,7 @@ HTML이 코드가 DOM이라는 모습으로 변환 되어야 브라우저에서 
 ### style-loader
 
 ~~~shell
-npm instll -d style-loader
+npm instll -D style-loader
 ~~~
 
 ```js
@@ -373,7 +373,7 @@ module.exports = {
 CSS 뿐만 아니라 이미지 파일도 처리할 수 있다.
 
 ~~~shell
-npm install -d file-loader
+npm install -D file-loader
 ~~~
 
 ```js
@@ -471,7 +471,7 @@ ANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4
 url-loader는 이러한 처리를 자동화 해주는 기능을 한다.
 
 ~~~shell
-npm install -d url-loader
+npm install -D url-loader
 ~~~
 
 ```js
@@ -700,7 +700,7 @@ console.log(api.domain); //http://dev.api.domain.com
 HTML 파일을 후처리 하는데 사용한다. 웹팩으로 빌드 한 결과물을 자동으로 로딩하는 코드를  HTML에 주입해 준다.
 
 ~~~shell
-npm install html-webpack-plugin
+npm install -D html-webpack-plugin
 ~~~
 
 ```js
@@ -797,7 +797,7 @@ module.exports = {
 아웃풋 폴더를 삭제해 주는 플러그인이다. (빌드 이전 결과물을 제거). 실습하면서 필요할 때마다 아웃풋 폴더를 직접 삭제 했는데, 이 플러그인을 사용하면 빌드 할 때마다 삭제 해준다.
 
 ~~~shell
-npm install clean-webpack-plugin
+npm install -D clean-webpack-plugin
 ~~~
 
 ```js
@@ -818,7 +818,7 @@ module.exports = {
 스타일 시트가 많아지면 하나의 자바스크립트 결과물로 만드는 것이 부담 일 수 있다. 번들 결과에서 css 코드만 따로 뽑아서 css 파일을 별도로 만들어 역할에 따라 파일을 분리하는 것이 좋다. 브라우저에서는 큰 파일 하나를 로딩하는 것보다 여러 개의 작은 파일 동시에 로딩하는 것이 빠르기 때문이다.
 
 ~~~shell
-npm install mini-css-extract-plugin
+npm install -D mini-css-extract-plugin
 ~~~
 
 ```js
@@ -888,7 +888,7 @@ module.exports = {
 프론트엔드 개발 환경에서 이러한 개발용 서버를 제공 해주는 것이 webpack-dev-server 다.
 
 ~~~shell
-npm i -d webpack-dev-server
+npm install -D webpack-dev-server
 ~~~
 
 ```js
@@ -983,7 +983,7 @@ document.addEventListener('DOMContentLoaded', () => {
 목업 API 가 많이 필요할 땐 connect-api-mocker 패키지의 도움을 받자. 특정 목업 폴더를 만들어 api 응답을 담은 파일을 저장한 뒤 이 폴더를 api로 제공한다.
 
 ~~~shell
-npm i -d connect-api-mocker
+npm install -D connect-api-mocker
 ~~~
 
 ```js
@@ -1168,7 +1168,7 @@ module.exports = {
  mode=production일 경우 사용 되는 TerserWebpackPlugin은 자바스크립트 코드를 난독화 하고 debugger 구문을 제거한다. 기본 설정 외에도 콘솔 로그를 제거하는 옵션도 있는데 배포 버전에는 로그를 감추는 것이 좋을 수도 있기 때문이다.
 
 ```shell
-npm i -D terser-webpack-plugin
+npm install -D terser-webpack-plugin
 ```
 
 optimization 배열에 추가한다.
@@ -1304,7 +1304,7 @@ axios는 이미  node_modules에 위치해 있기 때문에 이를 웹팩 아웃
 파일을 복사하는 CopyWebpackPlugin을 설치한다.
 
 ```shell
-npm i -d copy-webpack-plugin
+npm install -D copy-webpack-plugin
 ```
 
 플러그인을 사용해 라이브러리를 복사한다.
@@ -1334,6 +1334,8 @@ axios 는 직접 추가 했지만 번들링한 결과물은 HtmlWebpackPlugin이
 다시 빌드 해 보면 axios는 빌드 하지 않고 복사만 한다. controller와 main 이 분리되어 있다. 이 전에는 공통의 코드인 axios가 vendor~.js로 분리 되었는데 지금은 파일 조차 없다. 만약 써드파티 라이브러리 외에 공통의 코드가 있다면 이 파일로 분리 되었을 것이다.
 
 이렇게 써드파티 라이브러리를  externals로 분리하면 용량이 감소할 뿐만 아니라 빌드 시간도 줄어들고 덩달아 개발 환경도 가벼워 질 수 있다.
+
+
 
 # 정리
 
