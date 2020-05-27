@@ -175,13 +175,13 @@ exports[`생성시 버튼과 초기값을 렌더링 한다. 1`] = `
 
 ### 시각적 테스트 도구 사용 예제 (percy)
 
-![Untitled/Untitled.png](Untitled/Untitled.png)
+![images/Untitled.png](images/Untitled.png)
 
 (잠깐! puppeteer라는 걸 쓰고 있는데.. chrome브라우저를 nodejs api로 조작할 수 있게 만들어 주는 라이브러리다.)
 
-![Untitled/Untitled%201.png](Untitled/Untitled%201.png)
+![images/Untitled%201.png](images/Untitled%201.png)
 
-![Untitled/Untitled%202.png](Untitled/Untitled%202.png)
+![images/Untitled%202.png](images/Untitled%202.png)
 
 # 시각적 테스트 for Everything?
 
@@ -205,7 +205,7 @@ exports[`생성시 버튼과 초기값을 렌더링 한다. 1`] = `
 
 이 두 개를 잘 구분하는 것이 효율적인 테스트 코드를 작성하는 키 포인트이다!
 
-![Untitled/Untitled%201.png](Untitled/grid1.png)
+![images/Untitled%201.png](images/grid1.png)
 
 ### 기능적 테스트 예제 (이 부분은 앞전의 강의와 유사하네요!)
 
@@ -293,7 +293,7 @@ export const doubleDigit = () => <Counter initValue={75} />;
 export const trippleDigit = () => <Counter initValue={325} />;
 ```
 
-![Untitled/Untitled%203.png](Untitled/Untitled%203.png)
+![images/Untitled%203.png](images/Untitled%203.png)
 
 ## StoryBook ! == 시각적 테스트
 
@@ -316,11 +316,11 @@ Storybook은 테스트 도구는 아니지만 테스트에 굉장히 많은 도�
 
 Toast의 그리드에서 사용하고 있는 예제라고 합니다. 그리드에서 발생 가능한 다양한 시각적 케이스를 전부 등록해서 쓰고 있습니다. 시각적 케이스는 설명이 필요한 부분이 있기 때문에 우측의 Notes 기능도 사용하고 있습니다. 
 
-![Untitled/Untitled%204.png](Untitled/Untitled%204.png)
+![images/Untitled%204.png](images/Untitled%204.png)
 
 applitools 는 오픈소스인 경우 무료 계정을 준다.
 
-![Untitled/Untitled%205.png](Untitled/Untitled%205.png)
+![images/Untitled%205.png](images/Untitled%205.png)
 
 ## Storybook의 활용 범위
 
@@ -337,7 +337,7 @@ applitools 는 오픈소스인 경우 무료 계정을 준다.
 
 (예제)
 
-![Untitled/Untitled%206.png](Untitled/Untitled%206.png)
+![images/Untitled%206.png](images/Untitled%206.png)
 
 결제 실패 페이지 등은 결제를 실패하기 전까지는 절대 볼수 없는 화면 등을 등록하고 사용하기에도 유용하다.
 
@@ -347,7 +347,7 @@ applitools 는 오픈소스인 경우 무료 계정을 준다.
 
 redux / react-redux / redux - thnk
 
-![Untitled/Untitled%207.png](Untitled/Untitled%207.png)
+![images/Untitled%207.png](images/Untitled%207.png)
 
 이런식으로 작성하고 redux 홈페이지에 가서 보면 테스트를 모듈 별로 따로따로 하라고 되어있다.
 
@@ -443,9 +443,9 @@ it("update ('inc') 비동기 액션", async () => {
 
 더 중요한 것은 개별 모듈로 테스트 한 경우는 모듈의 연결 부위는 테스트가 되지 않은 것이다. 목킹을 다 해놓았기 때문이다. 
 
-![Untitled/Untitled%208.png](Untitled/Untitled%208.png)
+![images/Untitled%208.png](images/Untitled%208.png)
 
-![Untitled/Untitled%209.png](Untitled/Untitled%209.png)
+![images/Untitled%209.png](images/Untitled%209.png)
 
 # Why Most Unit Testing is waste (James O Coplien)
 
@@ -465,19 +465,19 @@ it("update ('inc') 비동기 액션", async () => {
 
 단위 테스트와 프로덕션 코드가 1:1 매칭 되지는 않는다.
 
-![Untitled/Untitled%2010.png](Untitled/Untitled%2010.png)
+![images/Untitled%2010.png](images/Untitled%2010.png)
 
 ## Sociable vs Solitary (Martain Fowler)
 
 Sociable Test / Solitary Test
 
-![Untitled/Untitled%2011.png](Untitled/Untitled%2011.png)
+![images/Untitled%2011.png](images/Untitled%2011.png)
 
 즉, 단위테스트와 통합테스트라는 것이 단순히 모듈 단위로 분리한다 분리하지 않는다의 의미가 아니라 단위를 어떤 식으로 나누냐의 문제라는 것이다.
 
 # 컴포넌트 단위의 통합 테스트
 
-![Untitled/Untitled%2012.png](Untitled/Untitled%2012.png)
+![images/Untitled%2012.png](images/Untitled%2012.png)
 
 컴포넌트 기반의 개발을 할때 가장 효율적인 테스트는 이 컴포넌트가 실제로 하는 동작을 다 묶어서 하나의 단위로 보는 것이라고 생각합니다. 
 
@@ -505,7 +505,7 @@ it('+ 버튼을 클릭하면 1 증가한다', async () => {
 
 실제 코드를 그대로 써서 한바퀴 돌았으니 커버리지도 전부 높아졌다.
 
-![Untitled/Untitled%2013.png](Untitled/Untitled%2013.png)
+![images/Untitled%2013.png](images/Untitled%2013.png)
 
 많은 경우에 컴포넌트 단위로 통합 테스트를 하는 것이 훨씬 효율적이다.
 
