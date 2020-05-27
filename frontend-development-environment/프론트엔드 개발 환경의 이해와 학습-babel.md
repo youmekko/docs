@@ -72,7 +72,7 @@ module.exports = function myBabelPlugin() {
 npx babel app.js --plugins './my-babel-plugin.js'
 ```
 
-![https://s3-us-west-2.amazonaws.com/secure.notion-static.com/e7fcab66-5ea7-4683-9ef0-d424c9d14a97/Untitled.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/e7fcab66-5ea7-4683-9ef0-d424c9d14a97/Untitled.png)
+![](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/e7fcab66-5ea7-4683-9ef0-d424c9d14a97/Untitled.png)
 
 이번에는 es6의 const variable을 var로 변경하는 플러그인을 만들어 보자.
 
