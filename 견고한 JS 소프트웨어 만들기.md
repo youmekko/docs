@@ -1,6 +1,6 @@
 # javascript아리송한 상황들
 
-commit-test
+commit-test=
 
 Javascript는 비교적 쉽다고 느껴진다. 우리가 대충 코드를 작성해도 똑똑한 브라우저가 알아서 실행해주기 때문이다. 하지만 그만큼 남용될 수 있는 여지도 많다.
 
