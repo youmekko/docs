@@ -2751,13 +2751,836 @@ AddBoard.vue
 
 ### 30강 Vuex 적용 - 인증1
 
-Vuex를 이용해서 인증 플로우를 개선해보자.
+현재는 인증과 관련해서 플레이어가 총 4개나 있다. (api 모듈, 라우터 모듈, 로그인 컴포넌트, 내비게이션 컴포넌트) 이것들을 전부 vuex store로 옮겨보자.
 
+~~~javascript
+import Vue from 'vue';
+import Vuex from 'vuex'
+import * as api from '../api'
 
+Vue.use(Vuex)
+
+const store = new Vuex.Store({
+    state: {
+        isAddBoard: false,
+        boards: [],
+        token: null
+    },
+    //getter는 vue컴포넌트의 computed 속성과 유사하다.
+    getters: {
+        isAuth (state) {
+            return !!state.token
+        }
+    },
+    mutations: {
+        SET_IS_ADD_BOARD(state, toggle){ 
+            state.isAddBoard = toggle
+        },
+        SET_BOARDS(state, boards){
+            state.boards = boards
+        },
+        LOGIN (state, token) {
+            if(!token) return
+            state.token = token
+            localStorage.setItem('token', token)
+            api.setAuthInHeader(token)
+        },
+        LOGOUT (state) {
+            state.token = null
+            delete localStorage.token
+            api.setAuthInHeader(null)
+        }
+    },
+    actions: {
+        ADD_BOARD(_, {title}){
+            return api.board.create(title)
+        },
+        /* actions의 첫번째 인자로는 컨텍스트 객체가 오는데 컨텍스트 객체 중에 commit 이라는 함수를 쓴다.
+        내부적으로 SET_BOARDS를 이용해 boards 상태를 갱신하도록 한다. */
+        FETCH_BOARDS({ commit }){
+            return api.board.fetch().then(data => {
+                commit('SET_BOARDS', data.list)
+            })
+        },
+        LOGIN ({ commit}, { email, password}) {
+            return api.auth.login(email, password)
+                .then(({accessToken})=> commit('LOGIN', accessToken))
+        }
+    }
+})
+
+const { token } = localStorage
+store.commit('LOGIN', token)
+
+export default store;
+~~~
 
 ### 31강 Vuex 적용 - 인증2
 
+옮긴 vuex store 를 이용해 기존 모듈, 컴포넌트 들을 수정합니다. 
+
+api/index.js
+
+~~~javascript
+import axios from 'axios'
+import router from '../router'
+
+const DOMAIN = 'http://localhost:3000'
+const UNAUTHORIZED = 401
+const onUnauthorized = () => {
+  router.push(`/login?rPath=${encodeURIComponent(location.pathname)}`)
+}
+
+const request = (method, url, data) => {
+  return axios({
+    method,
+    url: DOMAIN + url,
+    data
+  }).then(result => result.data)
+    .catch(result => {
+      const {status} = result.response
+      if (status === UNAUTHORIZED) onUnauthorized()
+      throw result.response
+    })
+}
+
+//토큰 정보를 받아서 axios안에 기능을 추가한다.
+//모든 리퀘스트를 날리기 전에 헤더 값을 토큰 정보로 설정하는 역할
+export const setAuthInHeader = token => {
+  axios.defaults.headers.common['Authorization'] = token ? `Bearer ${token}` : null;
+}
+
+export const board = {
+  fetch() {
+    return request('get', '/boards')
+  },
+  create(title){
+    return request('post', '/boards', {title})
+  }
+}
+export const auth = {
+  login(email, password) {
+    return request('post', '/login', {email, password})
+  }
+}
+~~~
+
+
+
+Login.vue
+
+~~~javascript
+<template>
+  <div class="login">
+    <h2>Log in to Trello</h2>
+    <form @submit.prevent="onSubmit">
+      <div>
+        <label for="email">Email</label>
+        <input class="form-control" type="text" name="email"
+               v-model="email" autofocus placeholder="e.g., test@test.com" />
+      </div>
+      <div>
+        <label for="password">Passwrod</label>
+        <input class="form-control" type="password"
+               v-model="password" placeholder="123123" />
+      </div>
+      <button  class="btn" :class="{'btn-success': !invalidForm}" type="submit"
+               :disabled="invalidForm">Log In</button>
+    </form>
+    <p class="error" v-if="error">{{error}}</p>
+  </div>
+</template>
+
+<script>
+  import {auth, setAuthInHeader} from '../api'
+  import { mapActions } from 'vuex'
+  export default {
+    data() {
+      return {
+        email: '',
+        password: '',
+        error: '',
+        rPath: ''
+      }
+    },
+    computed: {
+      invalidForm() {
+        return !this.email || !this.password
+      }
+    },
+    created() {
+      this.rPath = this.$route.query.rPath || '/'
+    },
+    methods: {
+      ...mapActions([
+          'LOGIN'
+      ]),
+      onSubmit() {
+        this.LOGIN({email: this.email, password: this.password})
+          .then(data => {
+            this.$router.push(this.rPath)
+          })
+          .catch(err => {
+            this.error = err.data.error
+          })
+      }
+    }
+  }
+</script>
+~~~
+
+NavBar.vue
+
+~~~javascript
+<template>
+    <!--
+   히스토리 모드를 쓸 때는  <a href="/">Home</a>
+   해시뱅 모드르 사용할 때는 <a href="/#/> 이처럼 라우팅 해야한다.
+   <router-link>를 쓰는 장점!
+   -->
+  <nav class="header">
+        <div class="header-logo">
+          <router-link to="/">Home</router-link>
+        </div>
+        <div class="header-auth">
+          <a href="" v-if="isAuth" @click.prevent="logout">Logout</a>
+          <router-link v-else to="/login">Login</router-link>
+            <!--<a>Logout</a>-->
+        </div>
+  </nav>
+</template>
+
+<script>
+  import {setAuthInHeader} from '../api'
+  import { mapMutations, mapGetters } from 'vuex'
+  export default {
+    computed:{
+      ...mapGetters([
+          'isAuth'
+      ])
+    },
+    methods:{
+      ...mapMutations([
+        'LOGOUT'
+      ]),
+      logout(){
+        this.LOGOUT();
+        this.$router.push('/login')
+      }
+    }
+  }
+</script>
+~~~
+
+router/index.js
+
+~~~javascript
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import Home from '../components/Home.vue'
+import Login from '../components/Login.vue'
+import NotFound from '../components/NotFound.vue'
+import Board from '../components/Board.vue'
+import Card from '../components/Card.vue'
+import store from '../store'
+
+//미들웨어
+Vue.use(VueRouter)
+
+const requireAuth = (to, from, next) => {
+  const loginPath = `/login?rPath=${encodeURIComponent(to.path)}`;
+  store.getters.isAuth ? next() : next(loginPath);
+}
+
+const router = new VueRouter({
+  /*
+  브라우저에서 라우팅 할때는 해쉬뱅(Hashbang)모드라는게 동작하는데 (브라우저 히스토리 API가 없을 때 사용)
+  크롬의 경우는 history API가 있기 때문에 해시뱅 모드가 아닌 히스토리 모드를 사용하면 된다.
+  */
+  mode: 'history',
+  routes: [
+    {path: '/', component: Home, beforeEnter: requireAuth},
+    {path: '/login', component: Login},
+    {path: '/b/:bid', component: Board, beforeEnter: requireAuth, children:[
+        {path: 'c/:cid', beforeEnter: requireAuth, component: Card}
+      ]},
+    {path: '*', component: NotFound}
+  ]
+})
+
+export default router
+~~~
+
+
+
 ### 32강 스토어개선
+
+스토어를 좀 짜임새 있게 만들어 보자.
+
+store/state.js
+
+~~~javascript
+const state =  {
+    isAddBoard: false,
+    boards: [],
+    token: null
+}
+
+export default state 
+~~~
+
+
+
+store/action.js
+
+~~~javascript
+import * as api from '../api'
+
+const actions = {
+    ADD_BOARD(_, {title}){
+        return api.board.create(title)
+    },
+    /* actions의 첫번째 인자로는 컨텍스트 객체가 오는데 컨텍스트 객체 중에 commit 이라는 함수를 쓴다.
+    내부적으로 SET_BOARDS를 이용해 boards 상태를 갱신하도록 한다. */
+    FETCH_BOARDS({ commit }){
+        return api.board.fetch().then(data => {
+            commit('SET_BOARDS', data.list)
+        })
+    },
+    LOGIN ({ commit}, { email, password}) {
+        return api.auth.login(email, password)
+            .then(({accessToken})=> commit('LOGIN', accessToken))
+    }
+}
+
+export default actions
+~~~
+
+
+
+store/getter.js
+
+~~~javascript
+//getter는 vue컴포넌트의 computed 속성과 유사하다.
+const getters  = {
+    isAuth (state) {
+        return !!state.token
+    }
+}
+
+export default getters 
+~~~
+
+
+
+mutation.js
+
+~~~javascript
+import { setAuthInHeader } from '../api'
+
+const mutations = {
+    SET_IS_ADD_BOARD(state, toggle){ 
+        state.isAddBoard = toggle
+    },
+    SET_BOARDS(state, boards){
+        state.boards = boards
+    },
+    LOGIN (state, token) {
+        if(!token) return
+        state.token = token
+        localStorage.setItem('token', token)
+        setAuthInHeader(token)
+    },
+    LOGOUT (state) {
+        state.token = null
+        delete localStorage.token
+        setAuthInHeader(null)
+    }
+}
+
+export default mutations 
+~~~
+
+
+
+store/index.js
+
+~~~javascript
+import Vue from 'vue';
+import Vuex from 'vuex'
+import state from './state'
+import getters from './getters'
+import mutations from './mutations'
+import actions from './actions'
+
+Vue.use(Vuex)
+
+const store = new Vuex.Store({
+    state,
+    getters,
+    mutations,
+    actions
+})
+
+const { token } = localStorage
+store.commit('LOGIN', token)
+
+export default store;
+~~~
+
+
+
+### 33강 보드 조회 화면 개발1
+
+보드 생성 후 바로 보드 화면으로 이동 하기를 구현해보자.
+
+AddBoard.vue
+
+~~~javascript
+<template>
+  <Modal>
+    <div slot="header">
+      <h2>
+        Create new board
+        <a href="" class="modal-default-button"
+           @click.prevent="SET_IS_ADD_BOARD(false)">&times;</a>
+      </h2>
+    </div>a
+    <div slot="body">
+      <form id="add-board-form"
+            @submit.prevent="addBoard">
+        <input class="form-control" type="text" v-model="input" ref="input">
+      </form>
+    </div>
+    <div slot="footer">
+      <button class="btn" :class="{'btn-success': valid}" type="submit"
+              form="add-board-form" :disabled="!valid">
+        Create Board
+      </button>
+    </div>
+  </Modal>
+</template>
+
+<script>
+  import Modal from './Modal.vue'
+  import { mapMutations, mapActions } from 'vuex'
+  export default {
+    components: {
+      Modal
+    },
+    data() {
+      return {
+        input: '',
+        valid: false
+      }
+    },
+    watch: {
+      input(v) {
+        this.valid = v.trim().length > 0
+      }
+    },
+    mounted() {
+      this.$refs.input.focus()
+    },
+    methods: {
+      ...mapMutations([
+        'SET_IS_ADD_BOARD'
+      ]),
+      ...mapActions([
+        'ADD_BOARD',
+        'FETCH_BOARDS'
+      ]),
+      addBoard() {
+        this.SET_IS_ADD_BOARD(false)
+        this.ADD_BOARD({title: this.input})
+          .then(({id}) => this.$router.push(`/b/${id}`))
+      }
+    }
+  }
+</script>
+~~~
+
+store/action.js
+
+~~~javascript
+import * as api from '../api'
+
+const actions = {
+    ADD_BOARD(_, {title}){
+        return api.board.create(title).then(data => data.item)
+    },
+    /* actions의 첫번째 인자로는 컨텍스트 객체가 오는데 컨텍스트 객체 중에 commit 이라는 함수를 쓴다.
+    내부적으로 SET_BOARDS를 이용해 boards 상태를 갱신하도록 한다. */
+    FETCH_BOARDS({ commit }){
+        return api.board.fetch().then(data => {
+            commit('SET_BOARDS', data.list)
+        })
+    },
+    LOGIN ({ commit}, { email, password}) {
+        return api.auth.login(email, password)
+            .then(({accessToken})=> commit('LOGIN', accessToken))
+    }
+}
+
+export default actions
+~~~
+
+
+
+### 34강 보드 조회 화면 개발2
+
+api/index.js
+
+~~~javascript
+import axios from 'axios'
+import router from '../router'
+
+const DOMAIN = 'http://localhost:3000'
+const UNAUTHORIZED = 401
+const onUnauthorized = () => {
+  router.push(`/login?rPath=${encodeURIComponent(location.pathname)}`)
+}
+
+const request = (method, url, data) => {
+  return axios({
+    method,
+    url: DOMAIN + url,
+    data
+  }).then(result => result.data)
+    .catch(result => {
+      const {status} = result.response
+      if (status === UNAUTHORIZED) onUnauthorized()
+      throw result.response
+    })
+}
+
+//토큰 정보를 받아서 axios안에 기능을 추가한다.
+//모든 리퀘스트를 날리기 전에 헤더 값을 토큰 정보로 설정하는 역할
+export const setAuthInHeader = token => {
+  axios.defaults.headers.common['Authorization'] = token ? `Bearer ${token}` : null;
+}
+
+export const board = {
+  fetch(id) {
+    return id ? request('get', `/boards/${id}`) : request('get', '/boards')
+  },
+  create(title){
+    return request('post', '/boards', {title})
+  }
+}
+export const auth = {
+  login(email, password) {
+    return request('post', '/login', {email, password})
+  }
+}
+~~~
+
+Board.vue
+
+~~~javascript
+<template>
+  <div>
+    Board
+
+    <div v-if="loading">loading board...</div>
+    <div v-else>
+      <div>bid: {{ bid }}</div>
+      <pre>{{ board }}</pre>
+      <router-link :to="`/b/${bid}/c/1`">Card1</router-link>
+      <router-link :to="`/b/${bid}/c/2`">Card2</router-link>
+    </div>
+    <hr/>
+    <router-view></router-view>
+  </div>
+</template>
+
+<script>
+  import { mapState, mapActions } from 'vuex';
+  export default {
+    data(){
+      return {
+        bid: 0,
+        loading: false
+      }
+    },
+    computed: {
+      ...mapState({
+        board : 'board'
+      })
+    },
+    //Board가 생성될 때 실행되는 훅이 Create
+    created(){
+      this.fetch();
+      //$route 객체 로그로 찍어보자
+      console.log("@@@route", this.$route);
+      console.log("@@@bid", this.$route.params.bid);
+    },
+    methods: {
+      ...mapActions([
+        'FETCH_BOARD'
+      ]),
+      //백엔드 API 호출 데이터 요청하는 메서드
+      fetch(){
+        this.loading = true;
+        this.FETCH_BOARD({ id : this.$route.params.bid })
+          .then(() => this.loading = false)
+      }
+    }
+  }
+</script>
+~~~
+
+store/state.js
+
+~~~javascript
+const state =  {
+    token: null,
+    isAddBoard: false,
+    boards: [],
+    board: null
+}
+
+export default state
+~~~
+
+store/mutation.js
+
+~~~javascript
+import { setAuthInHeader } from '../api'
+
+const mutations = {
+    SET_IS_ADD_BOARD(state, toggle){ 
+        state.isAddBoard = toggle
+    },
+    SET_BOARDS(state, boards){
+        state.boards = boards
+    },
+    SET_BOARD(state, board){
+        state.board = board
+    },
+    LOGIN (state, token) {
+        if(!token) return
+        state.token = token
+        localStorage.setItem('token', token)
+        setAuthInHeader(token)
+    },
+    LOGOUT (state) {
+        state.token = null
+        delete localStorage.token
+        setAuthInHeader(null)
+    }
+}
+
+export default mutations
+~~~
+
+
+store/action.js
+
+~~~javascript
+import * as api from '../api'
+
+const actions = {
+    ADD_BOARD(_, {title}){
+        return api.board.create(title).then(data => data.item)
+    },
+    /* actions의 첫번째 인자로는 컨텍스트 객체가 오는데 컨텍스트 객체 중에 commit 이라는 함수를 쓴다.
+    내부적으로 SET_BOARDS를 이용해 boards 상태를 갱신하도록 한다. */
+    FETCH_BOARDS({ commit }){
+        return api.board.fetch().then(data => {
+            commit('SET_BOARDS', data.list)
+        })
+    },
+    LOGIN ({ commit}, { email, password}) {
+        return api.auth.login(email, password)
+            .then(({accessToken})=> commit('LOGIN', accessToken))
+    },
+    FETCH_BOARD({ commit }, { id }){
+        return api.board.fetch(id).then(data => {
+            commit('SET_BOARD', data.item)
+        })
+    }
+}
+
+export default actions
+~~~
+
+추가로 보드 조회 화면에 CSS 도 추가한다. 
+
+
+
+### 35강 카드생성1- 마크업
+
+카드를 생성하는 AddCard 컴포넌트를 만들어 보자.
+
+AddCard.vue
+
+~~~javascript
+<template>
+    <div class="add-card">
+        <form @submit.prevent="onSubmit">
+            <input class="form-control" type="text" v-model="inputTitle" ref="inputText">
+            <button class="btn btn-success" type="submit" :disabled="invalidInput">Add Card</button>
+            <a class="cancel-add-btn" href="" @click.prevent="$emit('close')">&times;</a>
+        </form>
+    </div>
+</template>
+
+<script>
+export default {
+    data() {
+        return {
+            inputTitle: ''
+        }
+    },
+    computed: {
+        invalidInput() {
+            return !this.inputTitle.trim()
+        }
+    },
+    mounted() {
+        this.$refs.inputText.focus()  
+        this.setupClickOutSide(this.$el)    
+    },
+    methods: {
+        onSubmit() {
+            console.log('onSubmit')
+        },
+        setupClickOutSide(el) {
+            document.querySelector('body').addEventListener('click', e => {
+                if (el.contains(e.target)) return
+                this.$emit('close')
+            })
+        }
+    }
+}
+</script>
+~~~
+
+
+
+List.vue
+
+~~~javascript
+<template>
+  <div class="list">
+      <div class="list-header">
+          <div class="list-header-title">{{ data.title }}</div>
+      </div>
+
+      <div v-if="isAddCard">
+          <AddCard @close="isAddCard=false"/>
+      </div>
+      <div v-else>
+        <a class="add-card-btn" href="" @click.prevent="isAddCard=true">
+          &plus; Add a card...
+        </a>
+      </div>
+
+  </div>
+
+</template>
+
+<script>
+import AddCard from './AddCard'
+
+export default {
+  components: { AddCard },
+  props: ['data'],
+  data() {
+    return { 
+      isAddCard: false
+    }
+  }
+}
+</script>
+~~~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 36강 카드생성2 - API 연동
+
+### 37강 카드 상세 조회1- 라우팅
+
+### 38강 카드 상세조회 2 - API 연동
+
+### 39강 카드 수정 - API 연동
+
+### 40강 카드 이동1 - 로직 분석
+
+### 41강 카드 이동2 - 구현
+
+### 42강 카드 이동3- 리팩토링
+
+### 43강 카드 삭제
+
+### 44강 색상 입히기
+
+### 45강 보드 세팅
+
+### 46강 보트 삭제
+
+### 47강 나머지요구사항 정리
+
+### 48강 보드 수정 - 색상 변경
+
+### 49강 보드 수정 - 타이틀 변경
+
+### 50강 리스트 생성
+
+### 51강 리스트 수정 - 타이틀 변경
+
+### 52강 리스트 이동
+
+### 53강 리스트 삭제
+
+### 54강 정리
+
+### 55강 완료
+
+
+
+
+
+
 
 
 
