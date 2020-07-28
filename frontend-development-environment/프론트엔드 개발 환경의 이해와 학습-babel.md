@@ -337,3 +337,64 @@ module.exports = {
 
 
 
+
+
+### Sass 실습
+
+Sass는 바벨을 설절하는 것과 거의 유사하다. Babel이  ES6로 작성한 코드를  ES5로 바꿔주는 것처럼 Sass는 Sass 랭귀지로 작성한 코드를 CSS로 바꿔준다. 
+
+(Sass는 사용해 본 적이 없어서 잘 모르지만 sass와 scss가 있다고 한다. sass만 쓸거면 sass, sass와 css를 함께 사용하려면 scss를 사용한다.)
+
+
+
+### Sass 풀이
+
+~~~bash
+npm i sass-loader node-sass --save-dev
+~~~
+
+
+
+webpack.config.js
+
+~~~javascript
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.s[ac]ss$/i,
+        use: [
+          // Creates `style` nodes from JS strings
+          'style-loader',
+          // Translates CSS into CommonJS
+          'css-loader',
+          // Compiles Sass to CSS
+          'sass-loader',
+        ],
+      },
+    ],
+  },
+};
+~~~
+
+~~~javascript
+module: {
+  rules: [
+    {
+      test: /\.(scss|css)$/,
+      use: [
+        process.env.NODE_ENV === "production" 
+				? MiniCssExtractPlugin.loader //프로덕션 환경
+        : "style-loader",  //개발 환경
+        	"css-loader", 
+          "sass-loader"
+      ]
+    }
+  ]
+}
+~~~
+
+
+
+
+
